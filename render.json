@@ -1,0 +1,13 @@
+{
+  "name": "shri-samarth-krupa-api",
+  "env": "node",
+  "buildCommand": "npm install",
+  "startCommand": "node server.js",
+  "rootDir": "server",
+  "envVars": [
+    { "key": "NODE_ENV", "value": "production" },
+    { "key": "PORT", "value": "5000" },
+    { "key": "FRONTEND_URL", "value": "https://shri-samarth-krupa.vercel.app" },
+    { "key": "JWT_SECRET", "value": "shrisamarth_secure_key_2026" }
+  ]
+}
