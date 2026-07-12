@@ -25,8 +25,9 @@ export default function AdminLayout() {
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token')
-    if (!token) {
-      toast.error('Session expired. Please log in again.')
+    const loggedIn = localStorage.getItem('admin_logged_in')
+    if (!token && !loggedIn) {
+      try { toast.error('Please log in to access Admin Panel.') } catch(e) {}
       navigate('/admin/login')
     }
   }, [navigate])
