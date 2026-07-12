@@ -1,0 +1,360 @@
+{
+  "info": {
+    "name": "Shree Samarth Krupa API",
+    "description": "Complete API collection for Shree Samarth Krupa Diagnostic Centre",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"admin@shreesamarth.com\", \"password\": \"Admin@123\"}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/logout",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/auth/change-password",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"oldPassword\": \"Admin@123\", \"newPassword\": \"NewPass@456\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/appointments?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "pending", "disabled": true },
+                { "key": "search", "value": "", "disabled": true }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Book Appointment (Public)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/appointments",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_name\": \"Rajesh Sharma\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"rajesh@example.com\",\n  \"address\": \"Kalyan West, Maharashtra\",\n  \"test_name\": \"CBC\",\n  \"package_name\": \"\",\n  \"preferred_date\": \"2025-08-15\",\n  \"preferred_time\": \"09:00\",\n  \"home_collection\": true,\n  \"notes\": \"Please call before coming\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/appointments/1/status",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"confirmed\"}"
+            }
+          }
+        },
+        {
+          "name": "Delete Appointment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/appointments/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tests",
+      "item": [
+        {
+          "name": "Get All Tests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tests?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "category", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Test",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/tests",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Complete Blood Count (CBC)\",\n  \"category\": \"blood\",\n  \"description\": \"A complete blood count test measures different components of blood.\",\n  \"preparation\": \"No special preparation required.\",\n  \"sample_type\": \"Blood\",\n  \"price\": 250\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Test",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/tests/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"price\": 299}"
+            }
+          }
+        },
+        {
+          "name": "Delete Test",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/tests/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "Get All Packages",
+          "request": { "method": "GET", "url": "{{base_url}}/packages" }
+        },
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/packages",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Basic Health Package\",\n  \"price\": 1300,\n  \"description\": \"Essential health checkup package\",\n  \"includes\": [\"CBC\", \"Blood Sugar\", \"Thyroid Profile\", \"KFT\", \"LFT\", \"Lipid Profile\", \"Urine Examination\"],\n  \"is_featured\": false\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gallery",
+      "item": [
+        {
+          "name": "Get Gallery",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/gallery?page=1&limit=12",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "12" },
+                { "key": "category", "value": "laboratory", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/gallery",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "/path/to/image.jpg" },
+                { "key": "title", "value": "Lab Reception Area" },
+                { "key": "category", "value": "reception" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/gallery/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testimonials",
+      "item": [
+        {
+          "name": "Get Approved Testimonials",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/testimonials?status=approved"
+          }
+        },
+        {
+          "name": "Submit Review (Public)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/testimonials",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_name\": \"Priya Patel\",\n  \"rating\": 5,\n  \"review\": \"Excellent service! Reports were very accurate and received on time.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Testimonial",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/testimonials/1/status",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"status\": \"approved\"}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "FAQs",
+      "item": [
+        {
+          "name": "Get All FAQs",
+          "request": { "method": "GET", "url": "{{base_url}}/faqs" }
+        },
+        {
+          "name": "Create FAQ",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/faqs",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Do I need to fast before a blood test?\",\n  \"answer\": \"Yes, for blood sugar, lipid profile, and liver function tests, fasting for 8-12 hours is required.\",\n  \"category\": \"preparation\",\n  \"order_index\": 1\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "item": [
+        {
+          "name": "Get All Offers",
+          "request": { "method": "GET", "url": "{{base_url}}/offers" }
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Send Message (Public)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/contact",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Amit Kumar\",\n  \"email\": \"amit@example.com\",\n  \"mobile\": \"9876543210\",\n  \"subject\": \"Home Collection Enquiry\",\n  \"message\": \"I would like to know if you provide home collection service in Kalyan East.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Messages",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/contact",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "Get All Settings",
+          "request": { "method": "GET", "url": "{{base_url}}/settings" }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/settings",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hero_heading\": \"Trusted Diagnostic Centre in Kalyan\",\n  \"hero_subtitle\": \"Accurate Diagnostic Services with Modern Equipment\",\n  \"stat_tests\": \"100+\",\n  \"stat_patients\": \"5000+\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
