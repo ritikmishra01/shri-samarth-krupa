@@ -37,15 +37,16 @@ export default function AdminLayout() {
   useEffect(() => { setSidebarOpen(false) }, [location.pathname])
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token')
-    const loggedIn = localStorage.getItem('admin_logged_in')
-    if (!token && !loggedIn) {
+    const token = localStorage.getItem('ssk-token')
+    if (!token) {
       try { toast.error('Please log in.') } catch {}
       navigate('/admin/login')
     }
   }, [navigate])
 
   const handleLogout = () => {
+    localStorage.removeItem('ssk-token')
+    localStorage.removeItem('ssk-user')
     localStorage.removeItem('admin_token')
     localStorage.removeItem('admin_logged_in')
     try { toast.success('Logged out.') } catch {}

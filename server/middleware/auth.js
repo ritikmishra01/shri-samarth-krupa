@@ -35,8 +35,7 @@ const protect = async (req, res, next) => {
 
     req.user = {
       id: admin.id,
-      name: admin.name,
-      email: admin.email,
+      username: admin.username,
       role: admin.role,
     };
 

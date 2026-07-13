@@ -9,26 +9,28 @@ const { generateToken, clearToken } = require('../utils/generateToken');
  */
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, password, email } = req.body;
+    // Accept either username or email field (for compatibility)
+    const loginId = username || email;
 
-    if (!email || !password) {
+    if (!loginId || !password) {
       return res
         .status(400)
-        .json({ success: false, message: 'Email and password are required' });
+        .json({ success: false, message: 'Username and password are required' });
     }
 
-    const admin = await AdminModel.findByEmail(email.toLowerCase().trim());
+    const admin = await AdminModel.findByUsername(loginId.trim());
     if (!admin) {
       return res
         .status(401)
-        .json({ success: false, message: 'Invalid email or password' });
+        .json({ success: false, message: 'Invalid username or password' });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       return res
         .status(401)
-        .json({ success: false, message: 'Invalid email or password' });
+        .json({ success: false, message: 'Invalid username or password' });
     }
 
     const token = generateToken(res, admin.id, admin.role);
@@ -36,18 +38,18 @@ const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Login successful',
-      data: {
+      token,
+      user: {
         id: admin.id,
-        name: admin.name,
-        email: admin.email,
+        username: admin.username,
         role: admin.role,
-        token,
       },
     });
   } catch (err) {
     next(err);
   }
 };
+
 
 /**
  * @desc    Logout admin

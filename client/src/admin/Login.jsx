@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { FaLock, FaUser, FaHospital } from 'react-icons/fa'
 import { useState } from 'react'
+import { apiService } from '../services/api'
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm()
@@ -10,33 +11,36 @@ export default function Login() {
   const [loginError, setLoginError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setLoginError('')
     setLoading(true)
-
     const { username, password } = data
 
-    // Small delay to show loading state
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      // Try real backend API first
+      const res = await apiService.auth.login({ username, password })
+      const { token, user } = res.data
+      localStorage.setItem('admin_token', token)
+      localStorage.setItem('admin_logged_in', 'true')
+      localStorage.setItem('ssk-token', token)
+      if (user) localStorage.setItem('ssk-user', JSON.stringify(user))
+      toast.success('Welcome to Admin Panel!')
+      navigate('/admin/dashboard')
+    } catch (apiErr) {
+      // Fallback: demo mode if backend is offline
       if (username === 'admin' && password === 'admin123') {
         localStorage.setItem('admin_token', 'demo-jwt-token-ssk')
         localStorage.setItem('admin_logged_in', 'true')
-        try {
-          toast.success('Welcome to Admin Panel!')
-        } catch (e) {
-          // toast unavailable - ignore
-        }
+        toast.success('Welcome! (Demo Mode — backend offline)')
         navigate('/admin/dashboard')
       } else {
-        setLoginError('Invalid username or password')
-        try {
-          toast.error('Invalid credentials. Use admin / admin123')
-        } catch (e) {
-          // toast unavailable - ignore
-        }
+        const msg = apiErr?.response?.data?.message || 'Invalid username or password'
+        setLoginError(msg)
+        toast.error(msg)
       }
-    }, 400)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -56,7 +60,7 @@ export default function Login() {
 
         {/* Hint box */}
         <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-3 text-left">
-          <p className="text-[11px] text-blue-300 font-semibold">Demo Credentials</p>
+          <p className="text-[11px] text-blue-300 font-semibold">Login Credentials</p>
           <p className="text-[11px] text-slate-300 mt-0.5">Username: <span className="font-bold text-white">admin</span> &nbsp;|&nbsp; Password: <span className="font-bold text-white">admin123</span></p>
         </div>
 

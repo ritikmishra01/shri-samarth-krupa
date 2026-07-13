@@ -60,7 +60,7 @@ export default function BookAppointment() {
     }, 0)
   }
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (step < 3) {
       setStep(step + 1)
       return
@@ -71,7 +71,10 @@ export default function BookAppointment() {
       return
     }
 
-    // Process Booking
+    const testName = selectedPackage
+      ? PACKAGES.find(p => p.id === selectedPackage)?.name
+      : selectedTests.map(id => TESTS.find(t => t.id === id)?.name).join(', ')
+
     const newId = `SKD-${new Date().getFullYear()}${Math.floor(1000 + Math.random() * 9000)}`
     setBookingId(newId)
 
@@ -79,36 +82,42 @@ export default function BookAppointment() {
       booking_id: newId,
       ...data,
       is_home_collection: isHomeCollection ? 1 : 0,
+      home_collection: isHomeCollection ? 1 : 0,
       total_price: calculateTotal(),
-      tests: selectedPackage 
-        ? PACKAGES.find(p => p.id === selectedPackage).name
-        : selectedTests.map(id => TESTS.find(t => t.id === id).name).join(', '),
-      status: 'Pending'
+      tests: testName,
+      // MySQL field names
+      patient_name: data.name,
+      mobile: data.phone,
+      test_name: testName,
+      package_name: selectedPackage ? PACKAGES.find(p => p.id === selectedPackage)?.name : null,
+      preferred_date: data.preferred_date,
+      preferred_time: data.preferred_time,
+      status: 'pending'
     }
 
-    // Save to localStorage for Demo Mode
-    let currentList = []
+    // 1️⃣ Try real MySQL backend
     try {
-      currentList = JSON.parse(localStorage.getItem('appointments') || '[]')
-      if (!Array.isArray(currentList)) {
-        currentList = []
-      }
-    } catch (e) {
-      currentList = []
+      await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      }).then(async res => {
+        if (!res.ok) throw new Error('API error')
+        console.log('✅ Booking saved to MySQL')
+      })
+    } catch {
+      // 2️⃣ Fallback: save to localStorage
+      try {
+        const currentList = JSON.parse(localStorage.getItem('appointments') || '[]')
+        currentList.push({ ...bookingData, status: 'Pending', name: data.name, phone: data.phone })
+        localStorage.setItem('appointments', JSON.stringify(currentList))
+      } catch {}
     }
-    currentList.push(bookingData)
-    localStorage.setItem('appointments', JSON.stringify(currentList))
-
-    // Optional: Send to backend
-    fetch('http://localhost:5000/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingData)
-    }).catch(err => console.log('Backend sync skipped in demo:', err.message))
 
     toast.success('Appointment booked successfully!')
     setStep(4)
   }
+
 
   const handleRestart = () => {
     reset()
