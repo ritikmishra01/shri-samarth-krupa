@@ -33,6 +33,7 @@ const AdminMessages   = lazy(() => import('./admin/Messages.jsx'))
 const AdminFAQ        = lazy(() => import('./admin/FAQ.jsx'))
 const AdminOffers     = lazy(() => import('./admin/Offers.jsx'))
 const AdminSettings   = lazy(() => import('./admin/Settings.jsx'))
+const AdminReports    = lazy(() => import('./admin/Reports.jsx'))
 
 // Loading fallback
 import LoadingFallback from './components/common/LoadingSkeleton.jsx'
@@ -73,6 +74,7 @@ function App() {
             <Route path="faqs"       element={<AdminFAQ />} />
             <Route path="offers"     element={<AdminOffers />} />
             <Route path="settings"   element={<AdminSettings />} />
+            <Route path="reports"    element={<AdminReports />} />
           </Route>
 
           {/* 404 */}

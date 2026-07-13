@@ -17,7 +17,46 @@ export default function DownloadReport() {
       return
     }
 
-    // Mock search logic
+    // 1️⃣ Check for admin-uploaded PDF report first
+    try {
+      const uploadedReport = localStorage.getItem(`report_${patientId.toUpperCase()}`)
+      if (uploadedReport) {
+        const parsed = JSON.parse(uploadedReport)
+        // Verify phone matches booking
+        const appointments = JSON.parse(localStorage.getItem('appointments') || '[]')
+        const booking = appointments.find(a =>
+          a.booking_id === patientId.toUpperCase() && a.phone === mobile
+        )
+        if (booking) {
+          setReport({
+            patient_id: booking.booking_id,
+            name: booking.name,
+            test: booking.tests,
+            date: booking.preferred_date,
+            status: 'Ready',
+            pdfReport: parsed, // has .base64, .filename, .uploadedAt
+            values: [],
+            ai_summary: null
+          })
+          setHealthScore(null)
+          setShowAI(false)
+          toast.success('Report found! Your PDF is ready to download.')
+          return
+        }
+      }
+
+      // 2️⃣ Check real bookings (no PDF uploaded yet)
+      const appointments = JSON.parse(localStorage.getItem('appointments') || '[]')
+      const booking = appointments.find(a =>
+        a.booking_id === patientId.toUpperCase() && a.phone === mobile
+      )
+      if (booking) {
+        toast.error('Your booking is found but the report has not been uploaded yet. Please check back later.')
+        return
+      }
+    } catch {}
+
+    // 3️⃣ Demo fallback
     if (patientId.toUpperCase() === 'SKD-2026001' && mobile === '8169686040') {
       setReport({
         patient_id: 'SKD-2026001',
@@ -25,6 +64,7 @@ export default function DownloadReport() {
         test: 'Complete Blood Count (CBC)',
         date: '2026-07-05',
         status: 'Ready',
+        pdfReport: null,
         values: [
           { name: 'WBC (White Blood Cells)', val: 7.2, unit: 'K/uL', range: '4.5 - 11.0', status: 'Normal' },
           { name: 'RBC (Red Blood Cells)', val: 5.1, unit: 'M/uL', range: '4.5 - 5.9', status: 'Normal' },
@@ -38,7 +78,7 @@ export default function DownloadReport() {
       setShowAI(false)
       toast.success('Report found!')
     } else {
-      toast.error('No report found matching the details. Try ID: SKD-2026001, Mobile: 8169686040')
+      toast.error('No report found. Please check your Booking ID and Mobile Number.')
     }
   }
 
@@ -93,15 +133,57 @@ export default function DownloadReport() {
                 <p className="text-xs text-slate-500">ID: {report.patient_id} · Test: {report.test}</p>
               </div>
 
-              <div className="flex gap-2">
-                <button onClick={() => toast.success('Report PDF download started!')} className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
-                  <FaDownload /> Download Report
-                </button>
-                <button onClick={() => setShowAI(!showAI)} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-glow">
-                  <FaBrain /> {showAI ? 'Hide AI Analysis' : '✨ Analyze My Report'}
-                </button>
+              <div className="flex gap-2 flex-wrap">
+                {report.pdfReport && (
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a')
+                      link.href = report.pdfReport.base64
+                      link.download = report.pdfReport.filename
+                      link.click()
+                      toast.success('Downloading your report PDF...')
+                    }}
+                    className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all"
+                  >
+                    <FaDownload /> Download PDF Report
+                  </button>
+                )}
+                {!report.pdfReport && (
+                  <button onClick={() => toast.success('Report PDF download started!')} className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                    <FaDownload /> Download Report
+                  </button>
+                )}
+                {report.ai_summary && (
+                  <button onClick={() => setShowAI(!showAI)} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-glow">
+                    <FaBrain /> {showAI ? 'Hide AI Analysis' : '✨ Analyze My Report'}
+                  </button>
+                )}
               </div>
             </div>
+
+            {/* PDF Report Card */}
+            {report.pdfReport && (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FaFilePdf className="text-red-500 text-xl" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-800 dark:text-white text-sm truncate">{report.pdfReport.filename}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{report.pdfReport.size} · Uploaded {new Date(report.pdfReport.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = report.pdfReport.base64
+                    link.download = report.pdfReport.filename
+                    link.click()
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl text-xs font-bold transition-all flex-shrink-0"
+                >
+                  <FaDownload /> Download
+                </button>
+              </div>
+            )}
 
             {/* AI Analysis View */}
             {showAI && (
