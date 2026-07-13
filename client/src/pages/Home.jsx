@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   FaFlask, FaHeartbeat, FaHome, FaPhoneAlt, FaWhatsapp,
-  FaCheckCircle, FaChevronDown, FaShieldAlt, FaMicroscope,
-  FaUserMd, FaStar, FaBlog, FaClock, FaCalendarCheck
+  FaCheckCircle, FaShieldAlt, FaMicroscope, FaUserMd,
+  FaStar, FaClock, FaCalendarCheck, FaArrowRight, FaMapMarkerAlt
 } from 'react-icons/fa'
-import { MdOutlineLocalHospital } from 'react-icons/md'
-import useCountUp from '../hooks/useCountUp'
+import { MdOutlineLocalHospital, MdScience } from 'react-icons/md'
 
 const TESTS = [
   { name: 'CBC (Complete Blood Count)', price: 200, sample: 'Blood', fasting: 'No', time: 'Same Day' },
@@ -21,485 +20,503 @@ const TESTS = [
   { name: 'Vitamin B12', price: 700, sample: 'Blood', fasting: 'No', time: 'Same Day' },
   { name: 'Vitamin D', price: 900, sample: 'Blood', fasting: 'No', time: 'Next Day' },
   { name: 'Urine Examination', price: 100, sample: 'Urine', fasting: 'No', time: 'Same Day' },
-  { name: 'Pregnancy Test', price: 150, sample: 'Urine/Blood', fasting: 'No', time: '30 mins' },
+  { name: 'Pregnancy Test', price: 150, sample: 'Urine', fasting: 'No', time: '30 mins' },
 ]
 
 const PACKAGES = [
   {
     name: 'Fit India Package 1.1',
     price: 1300,
+    tests: 7,
     features: ['CBC', 'Lipid Profile', 'Thyroid Profile', 'Liver Function', 'Kidney Function', 'Urine Examination', 'Blood Sugar'],
     popular: false
   },
   {
     name: 'Fit India Package 1.2',
     price: 1700,
+    tests: 8,
     features: ['CBC', 'Lipid Profile', 'Thyroid Profile', 'Liver Function', 'Kidney Function', 'Urine Examination', 'Blood Sugar', 'HbA1c'],
     popular: false
   },
   {
     name: 'Fit India Package 1.3',
     price: 3000,
+    tests: 11,
     features: ['Everything in Package 1.2', 'Iron Profile', 'Vitamin B12', 'Vitamin D'],
     popular: true
   }
 ]
 
+const WHY_US = [
+  { title: 'Experienced Phlebotomist', desc: '8+ years expert blood draw by Mr. Shailesh Dubey.', icon: FaUserMd, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
+  { title: 'Safe Blood Collection', desc: 'Sterile single-use equipment, painless process.', icon: FaHeartbeat, color: 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400' },
+  { title: 'Hygienic Lab', desc: 'ISO-standard sanitation and equipment protocols.', icon: FaShieldAlt, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
+  { title: 'Affordable Packages', desc: 'Up to 50% cheaper than corporate diagnostic labs.', icon: FaFlask, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
+  { title: 'Fast Digital Reports', desc: 'Reports on your phone within 4–6 hours.', icon: FaClock, color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
+  { title: 'Home Collection', desc: 'Trained phlebotomist visits your home in Kalyan.', icon: FaHome, color: 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400' },
+  { title: 'AI Report Analysis', desc: 'Simple AI explanation of your test results.', icon: MdScience, color: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' },
+  { title: 'Professional Staff', desc: 'Caring clinical team from booking to reports.', icon: MdOutlineLocalHospital, color: 'bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400' },
+]
+
+const TESTIMONIALS = [
+  { name: 'Priya Sharma', rating: 5, review: 'Excellent service! Mr. Shailesh is extremely gentle and professional. Got reports on WhatsApp the same evening.' },
+  { name: 'Rajesh Patil', rating: 5, review: 'Requested home collection for my aged parents. Service was punctual and very hygienic. Highly recommended!' },
+  { name: 'Sunita Desai', rating: 5, review: 'Mr. Shailesh Dubey has excellent technique. Hardly felt any pain. Prices are also very reasonable.' },
+]
+
+const fadeUp = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } }
+
 export default function Home() {
-  // Countdown for Sunday camp
-  const [timeLeft, setTimeLeft] = useState('')
+  const [timeLeft, setTimeLeft] = useState({ d: '00', h: '00', m: '00', s: '00' })
+  const [campActive, setCampActive] = useState(true)
+  const [campOffers, setCampOffers] = useState([])
 
+  // Read Sunday camp state from localStorage (set by admin)
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date()
-      const nextSunday = new Date()
-      nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7)
-      nextSunday.setHours(8, 0, 0, 0)
-      if (now > nextSunday) {
-        nextSunday.setDate(nextSunday.getDate() + 7)
-      }
-      const difference = nextSunday - now
-      let timeLeft = ''
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24)
-        const minutes = Math.floor((difference / 1000 / 60) % 60)
-        const seconds = Math.floor((difference / 1000) % 60)
-        timeLeft = `${days}d ${hours}h ${minutes}m ${seconds}s`
-      }
-      setTimeLeft(timeLeft)
-    }
+    const stored = localStorage.getItem('sunday_camp_active')
+    setCampActive(stored === null ? true : stored === 'true')
 
-    const timer = setInterval(calculateTimeLeft, 1000)
-    return () => clearInterval(timer)
+    try {
+      const offers = JSON.parse(localStorage.getItem('sunday_camp_offers') || '[]')
+      if (Array.isArray(offers) && offers.length > 0) setCampOffers(offers)
+      else setCampOffers([
+        { id: 1, test_name: 'Thyroid Profile', original: 800, camp: 400 },
+        { id: 2, test_name: 'HbA1c (Sugar avg)', original: 700, camp: 400 },
+        { id: 3, test_name: 'Lipid Profile', original: 700, camp: 400 },
+        { id: 4, test_name: 'Vitamin B12', original: 1200, camp: 700 },
+        { id: 5, test_name: 'Vitamin D3', original: 1500, camp: 900 },
+        { id: 6, test_name: 'Blood Group', original: 150, camp: 80 },
+      ])
+    } catch {
+      setCampOffers([])
+    }
+  }, [])
+
+  // Countdown to next Sunday
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      const next = new Date()
+      next.setDate(now.getDate() + (7 - now.getDay()) % 7 || 7)
+      next.setHours(8, 0, 0, 0)
+      if (now > next) next.setDate(next.getDate() + 7)
+      const diff = next - now
+      if (diff <= 0) return
+      setTimeLeft({
+        d: String(Math.floor(diff / 86400000)).padStart(2, '0'),
+        h: String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'),
+        m: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+        s: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+      })
+    }
+    tick()
+    const t = setInterval(tick, 1000)
+    return () => clearInterval(t)
   }, [])
 
   return (
     <div className="pt-16">
-      {/* Hero Section */}
-      <section className="relative hero-gradient text-white py-20 lg:py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex-1 space-y-6 text-center lg:text-left"
-          >
-            <span className="badge badge-blue bg-white/20 text-white border border-white/30 text-xs">
-              ★ Kalyan's Most Trusted Pathology Centre
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-display">
-              Accurate Diagnostics.<br/>Trusted Care. Healthy Life.
-            </h1>
-            <p className="text-lg text-slate-200 max-w-xl mx-auto lg:mx-0">
-              Professional Pathology & Diagnostic Services with 8+ Years of Trusted Experience. Get reports directly on your phone with AI-powered health analysis.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-              <Link to="/book-appointment" className="px-6 py-3 btn-primary text-sm shadow-glow">
-                Book Test Online
-              </Link>
-              <Link to="/download-report" className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full font-semibold text-sm transition-all">
-                Download Report
-              </Link>
-              <a href="tel:8169686040" className="px-6 py-3 bg-[#00B894] hover:bg-[#00a381] rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                <FaPhoneAlt /> Call Now
-              </a>
-              <a href="https://wa.me/918169686040" target="_blank" rel="noreferrer" className="px-6 py-3 bg-[#25D366] hover:bg-[#20ba5a] rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                <FaWhatsapp className="text-base" /> WhatsApp
-              </a>
-            </div>
 
-            {/* Badges */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 max-w-lg mx-auto lg:mx-0">
-              {[
-                { text: 'Home Collection', emoji: '🏠' },
-                { text: 'Digital Reports', emoji: '📱' },
-                { text: 'Accurate Testing', emoji: '✅' },
-                { text: 'Fast Delivery', emoji: '⚡' }
-              ].map((b, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                  <span className="text-xl block mb-1">{b.emoji}</span>
-                  <span className="text-xs font-semibold text-slate-300">{b.text}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+      {/* ── HERO ── */}
+      <section className="relative hero-gradient text-white overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute bottom-0 -left-24 w-80 h-80 rounded-full bg-blue-400/10 blur-3xl" />
+        </div>
 
-          {/* SVG Illustration Container */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex-1 max-w-md lg:max-w-xl w-full"
-          >
-            <div className="relative aspect-square w-full glass rounded-3xl p-8 flex items-center justify-center border border-white/10 shadow-glow overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary-700/20 to-[#E63946]/10 opacity-30 animate-pulse-slow" />
-              {/* Animated circles/floating blobs */}
-              <div className="absolute w-44 h-44 rounded-full bg-primary-500/20 blur-2xl top-10 left-10 animate-float" />
-              <div className="absolute w-48 h-48 rounded-full bg-[#E63946]/10 blur-2xl bottom-10 right-10 animate-float" style={{ animationDelay: '2s' }} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
 
-              <div className="z-10 text-center space-y-6">
-                <FaFlask className="text-8xl text-white mx-auto animate-bounce-slow text-primary-300" />
-                <div className="space-y-2">
-                  <p className="text-2xl font-bold font-display text-white">Shri Samarth Krupa</p>
-                  <p className="text-slate-300 text-sm">Owner & Phlebotomist: Mr. Shailesh Dubey</p>
-                  <p className="text-xs text-[#00B894] font-semibold bg-[#00B894]/20 py-1 px-3 rounded-full inline-block">ISO 9001:2015 Certified Lab</p>
-                </div>
+            {/* Left */}
+            <motion.div {...fadeUp} className="flex-1 space-y-6 text-center lg:text-left">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 border border-white/20 rounded-full text-xs font-semibold backdrop-blur-sm">
+                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                Kalyan's Most Trusted Pathology Centre
+              </span>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight font-display">
+                Accurate Diagnostics.<br />
+                <span className="text-blue-200">Trusted Care.</span> Healthy Life.
+              </h1>
+
+              <p className="text-slate-200 text-sm sm:text-base max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                Professional Pathology & Diagnostic Services with 8+ Years of Experience in Kalyan West. Fast digital reports delivered directly to your phone.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link to="/book-appointment"
+                  className="px-5 py-2.5 bg-white text-primary-800 font-bold rounded-xl text-sm hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2">
+                  <FaCalendarCheck /> Book Test
+                </Link>
+                <Link to="/download-report"
+                  className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/25 rounded-xl font-semibold text-sm transition-all backdrop-blur-sm">
+                  Download Report
+                </Link>
+                <a href="tel:8169686040"
+                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all">
+                  <FaPhoneAlt className="text-xs" /> Call Now
+                </a>
+                <a href="https://wa.me/918169686040" target="_blank" rel="noreferrer"
+                  className="px-5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] rounded-xl font-semibold text-sm flex items-center gap-2 transition-all">
+                  <FaWhatsapp /> WhatsApp
+                </a>
               </div>
-            </div>
-          </motion.div>
+
+              {/* Trust Badges */}
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start pt-2">
+                {['🏠 Home Collection', '📱 Digital Reports', '✅ 99% Accuracy', '⚡ Same Day'].map(b => (
+                  <span key={b} className="px-3 py-1.5 bg-white/10 rounded-lg text-xs font-medium border border-white/10">
+                    {b}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right — Info Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="flex-1 w-full max-w-sm lg:max-w-md"
+            >
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 space-y-5 shadow-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <FaFlask className="text-2xl text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">Shri Samarth Krupa</p>
+                    <p className="text-xs text-slate-300">Diagnostic Centre</p>
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { label: 'Owner & Phlebotomist', val: 'Mr. Shailesh Dubey' },
+                    { label: 'Experience', val: '8+ Years Expert' },
+                    { label: 'Location', val: 'Kalyan West, Maharashtra' },
+                    { label: 'Hours', val: 'Mon–Sat 7AM–9PM | Sun 7AM–2PM' },
+                  ].map(r => (
+                    <div key={r.label} className="flex justify-between items-center py-2 border-b border-white/10 last:border-0">
+                      <span className="text-xs text-slate-300">{r.label}</span>
+                      <span className="text-xs font-semibold text-white text-right max-w-[55%]">{r.val}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href="tel:8169686040"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all">
+                  <FaPhoneAlt className="text-xs" /> 81 6968 6040 — Call Now
+                </a>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-slate-900 text-white py-12 border-y border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      {/* ── STATS BAR ── */}
+      <section className="bg-slate-900 border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { val: 8, label: 'Years Experience', suffix: '+' },
-              { val: 5000, label: 'Happy Patients', suffix: '+' },
-              { val: 100, label: 'Diagnostic Tests', suffix: '+' },
-              { val: 99, label: 'Accurate Reports', suffix: '%' }
-            ].map((stat, idx) => (
-              <div key={idx} className="space-y-1">
-                <p className="text-4xl sm:text-5xl font-extrabold text-blue-400 font-display">
-                  {stat.val}{stat.suffix}
-                </p>
-                <p className="text-sm text-slate-400 font-semibold">{stat.label}</p>
-              </div>
+              { val: '8+', label: 'Years Experience' },
+              { val: '5000+', label: 'Happy Patients' },
+              { val: '100+', label: 'Diagnostic Tests' },
+              { val: '99%', label: 'Report Accuracy' },
+            ].map((s, i) => (
+              <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.1 }}>
+                <p className="text-3xl sm:text-4xl font-extrabold text-blue-400 font-display">{s.val}</p>
+                <p className="text-xs text-slate-400 font-medium mt-1">{s.label}</p>
+              </motion.div>
             ))}
           </div>
-          <p className="text-center text-xs text-[#00B894] mt-6 font-semibold uppercase tracking-wider">
-            ✓ Home sample collection available across all areas of Kalyan
+          <p className="text-center text-xs text-emerald-400 font-semibold mt-6 flex items-center justify-center gap-1.5">
+            <FaMapMarkerAlt /> Home collection available across Kalyan West, Ambivali, Titwala & nearby areas
           </p>
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading font-display">
-              Why Choose Us
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              We combine years of professional practice with state-of-the-art care to give you the most accurate results possible.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
-            {[
-              { title: 'Experienced Phlebotomist', desc: 'Blood drawn carefully by founder Mr. Shailesh Dubey with 8+ years experience.', icon: <FaUserMd /> },
-              { title: 'Safe Blood Collection', desc: 'Strict protocols using sterile tools to ensure painless & risk-free collections.', icon: <FaHeartbeat /> },
-              { title: 'Hygienic Process', desc: 'Completely sanitized lab space and equipment matching medical standards.', icon: <FaShieldAlt /> },
-              { title: 'Affordable Packages', desc: 'Up to 50% discount on comprehensive packages compared to corporate labs.', icon: <FaFlask /> },
-              { title: 'Fast Digital Reports', desc: 'Receive your pathology report within 4-6 hours directly on your smartphone.', icon: <FaClock /> },
-              { title: 'Home Sample Collection', desc: 'Convenient sample collection from the comfort of your house in Kalyan West.', icon: <FaHome /> },
-              { title: 'AI Health Report Analysis', desc: 'A custom summary that explains your parameters in simple words.', icon: <FaMicroscope /> },
-              { title: 'Professional Staff', desc: 'Caring clinical assistants to guide you from registration to reports.', icon: <MdOutlineLocalHospital /> }
-            ].map((feature, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 interactive-hover-card text-left transition-all">
-                <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-blue-400 flex items-center justify-center text-2xl mb-4">
-                  {feature.icon}
+      {/* ── WHY CHOOSE US ── */}
+      <section className="py-16 lg:py-20 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div {...fadeUp} className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary-600 dark:text-blue-400 mb-2">Our Advantages</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white">Why Patients Choose Us</h2>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {WHY_US.map((f, i) => (
+              <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.05 }}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 ${f.color}`}>
+                  <f.icon />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white font-display mb-2">{feature.title}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{feature.desc}</p>
-              </div>
+                <h3 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">{f.title}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{f.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Tests */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading font-display">
-              Popular Diagnostic Tests
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Choose from our wide range of tests. Same-day accurate reports guaranteed.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TESTS.map((test, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-6 shadow-sm interactive-hover-card flex flex-col justify-between">
-                <div className="space-y-3">
-                  <span className="badge badge-blue text-[10px] uppercase font-bold tracking-wider">
-                    {test.sample} Test
+      {/* ── POPULAR TESTS ── */}
+      <section className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div {...fadeUp} className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary-600 dark:text-blue-400 mb-2">Diagnostics</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white">Popular Tests</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">Same-day accurate results on all standard tests</p>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {TESTS.map((test, i) => (
+              <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.04 }}
+                className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                    {test.sample}
                   </span>
-                  <h3 className="text-base font-bold text-slate-800 dark:text-white font-display leading-snug">
-                    {test.name}
-                  </h3>
-                  <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 pt-2">
-                    <p>Fasting Required: <span className="font-semibold text-slate-700 dark:text-slate-200">{test.fasting}</span></p>
-                    <p>Report Delivery: <span className="font-semibold text-slate-700 dark:text-slate-200">{test.time}</span></p>
-                  </div>
+                  <span className="text-lg font-extrabold text-primary-700 dark:text-blue-400">₹{test.price}</span>
                 </div>
-
-                <div className="pt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 mt-4">
-                  <p className="text-xl font-bold text-primary-700 dark:text-blue-400 font-display">₹{test.price}</p>
-                  <Link to="/book-appointment" className="px-4 py-2 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-primary-700 hover:text-white transition-all">
-                    Book Now
-                  </Link>
+                <h3 className="font-bold text-slate-800 dark:text-white text-sm flex-1 leading-snug">{test.name}</h3>
+                <div className="flex items-center gap-3 mt-3 text-[10px] text-slate-400">
+                  <span>Fasting: <strong className="text-slate-600 dark:text-slate-300">{test.fasting}</strong></span>
+                  <span>•</span>
+                  <span>Report: <strong className="text-slate-600 dark:text-slate-300">{test.time}</strong></span>
                 </div>
-              </div>
+                <Link to="/book-appointment"
+                  className="mt-3 w-full text-center py-2 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-blue-400 text-xs font-bold hover:bg-primary-700 hover:text-white transition-all">
+                  Book Now
+                </Link>
+              </motion.div>
             ))}
           </div>
-
-          <div className="text-center pt-6">
-            <Link to="/services" className="inline-flex items-center gap-2 text-primary-700 dark:text-blue-400 font-bold hover:underline">
-              View All 100+ Tests Available →
+          <div className="text-center mt-8">
+            <Link to="/services" className="inline-flex items-center gap-2 text-primary-700 dark:text-blue-400 text-sm font-bold hover:underline">
+              View All 100+ Tests <FaArrowRight className="text-xs" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Health Packages */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/40 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading font-display">
-              Affordable Health Packages
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Get complete peace of mind with our curated annual checkups and full body diagnostics.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
-            {PACKAGES.map((pkg, idx) => (
-              <div 
-                key={idx} 
-                className={`rounded-3xl p-8 relative flex flex-col justify-between transition-all ${
-                  pkg.popular 
-                    ? 'bg-gradient-to-b from-primary-800 to-primary-900 text-white shadow-glow-lg scale-105 z-10' 
-                    : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white shadow-sm interactive-hover-card'
-                }`}
-              >
+      {/* ── PACKAGES ── */}
+      <section className="py-16 lg:py-20 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <motion.div {...fadeUp} className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary-600 dark:text-blue-400 mb-2">Best Value</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white">Health Packages</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">Save up to 60% with our curated full-body checkup packages</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PACKAGES.map((pkg, i) => (
+              <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.1 }}
+                className={`rounded-2xl p-6 relative flex flex-col ${
+                  pkg.popular
+                    ? 'bg-gradient-to-b from-primary-700 to-primary-900 text-white shadow-2xl ring-2 ring-primary-400/30 scale-[1.02]'
+                    : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white shadow-sm'
+                }`}>
                 {pkg.popular && (
-                  <span className="absolute -top-3 right-6 bg-[#E63946] text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    ⭐ Most Popular
-                  </span>
-                )}
-                
-                <div>
-                  <h3 className="text-xl font-bold font-display mb-2">{pkg.name}</h3>
-                  <div className="flex items-baseline gap-1 my-4">
-                    <span className="text-3xl font-extrabold font-display">₹{pkg.price}</span>
-                    <span className={`text-xs ${pkg.popular ? 'text-slate-300' : 'text-slate-400'}`}>/ Person</span>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-amber-400 text-amber-900 px-4 py-1 rounded-full text-xs font-extrabold whitespace-nowrap shadow-md">
+                      ⭐ Most Popular
+                    </span>
                   </div>
-                  <hr className={`my-6 ${pkg.popular ? 'border-white/10' : 'border-slate-100 dark:border-slate-700'}`} />
-                  
-                  <ul className="space-y-3.5">
-                    {pkg.features.map((f, fidx) => (
-                      <li key={fidx} className="flex items-start gap-2.5 text-sm">
-                        <FaCheckCircle className={`mt-1 flex-shrink-0 ${pkg.popular ? 'text-[#00B894]' : 'text-primary-600 dark:text-blue-400'}`} />
+                )}
+                <div className="pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wider opacity-60 mb-1">{pkg.tests} Tests Included</p>
+                  <h3 className="text-lg font-extrabold font-display">{pkg.name}</h3>
+                  <div className="flex items-baseline gap-1 mt-3 mb-5">
+                    <span className="text-4xl font-extrabold">₹{pkg.price.toLocaleString()}</span>
+                    <span className={`text-xs ${pkg.popular ? 'text-slate-300' : 'text-slate-400'}`}>/ person</span>
+                  </div>
+                  <hr className={`mb-5 ${pkg.popular ? 'border-white/15' : 'border-slate-100 dark:border-slate-700'}`} />
+                  <ul className="space-y-2.5">
+                    {pkg.features.map((f, fi) => (
+                      <li key={fi} className="flex items-start gap-2 text-sm">
+                        <FaCheckCircle className={`mt-0.5 flex-shrink-0 ${pkg.popular ? 'text-emerald-400' : 'text-primary-600 dark:text-blue-400'}`} />
                         <span className={pkg.popular ? 'text-slate-100' : 'text-slate-600 dark:text-slate-300'}>{f}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-
-                <div className="pt-8">
-                  <Link 
-                    to="/book-appointment" 
-                    className={`w-full py-3 rounded-xl font-bold text-center block text-sm transition-all ${
-                      pkg.popular 
-                        ? 'bg-white hover:bg-slate-100 text-primary-800 shadow-glow' 
+                <div className="pt-6 mt-auto">
+                  <Link to="/book-appointment"
+                    className={`w-full py-3 rounded-xl font-bold text-sm text-center block transition-all ${
+                      pkg.popular
+                        ? 'bg-white hover:bg-slate-100 text-primary-800'
                         : 'bg-primary-700 hover:bg-primary-800 text-white'
-                    }`}
-                  >
-                    Book Package Now
+                    }`}>
+                    Book This Package
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Sunday Health Camp */}
-      <section className="py-20 bg-gradient-to-tr from-[#0F4C81] to-[#1e3d60] text-white px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/[0.03] bg-center" />
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-12">
-          <div className="flex-1 space-y-6 text-center lg:text-left">
-            <span className="bg-[#E63946] text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest inline-block animate-pulse-slow">
-              🔥 Special Sunday Camp
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display leading-tight">
-              Get Diagnosed This Sunday!<br/>Health Camp Prices at Half Cost.
-            </h2>
-            <p className="text-slate-300">
-              Shri Samarth Krupa runs a weekly camp every Sunday (7:00 AM - 2:00 PM). Enjoy massive discounts on all major diagnostic test configurations.
-            </p>
-
-            {timeLeft && (
-              <div className="bg-white/10 rounded-2xl p-4 inline-block border border-white/20">
-                <p className="text-xs text-slate-300 uppercase font-bold tracking-wider mb-1">Time Remaining till Camp:</p>
-                <p className="text-2xl font-mono font-extrabold text-[#00B894]">{timeLeft}</p>
-              </div>
-            )}
-
-            <div>
-              <Link to="/book-appointment" className="inline-flex items-center gap-2 px-6 py-3 bg-[#E63946] hover:bg-[#d52b38] rounded-full font-bold transition-all shadow-glow-red">
-                <FaCalendarCheck /> Book Sunday Camp Appointment
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex-1 w-full grid grid-cols-2 gap-4">
-            {[
-              { name: 'Thyroid Profile', orig: 800, camp: 400 },
-              { name: 'HbA1c (Sugar avg)', orig: 700, camp: 400 },
-              { name: 'Lipid Profile', orig: 700, camp: 400 },
-              { name: 'Vitamin B12', orig: 1200, camp: 700 },
-              { name: 'Vitamin D3', orig: 1500, camp: 900 },
-              { name: 'Blood Group', orig: 150, camp: 80 }
-            ].map((camp, idx) => (
-              <div key={idx} className="bg-white/5 border border-white/15 rounded-2xl p-4 text-center hover:bg-white/10 transition-all">
-                <p className="text-sm font-semibold text-slate-200">{camp.name}</p>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <span className="text-xs line-through text-slate-400">₹{camp.orig}</span>
-                  <span className="text-lg font-bold text-[#00B894]">₹{camp.camp}</span>
-                </div>
-                <span className="text-[9px] bg-[#00B894]/20 text-[#00B894] font-bold px-1.5 py-0.5 rounded mt-2 inline-block">
-                  Save {Math.round(((camp.orig - camp.camp) / camp.orig) * 100)}%
+      {/* ── SUNDAY CAMP (conditional on admin toggle) ── */}
+      {campActive && (
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-[#0F4C81] to-[#0a2e50] text-white px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #60a5fa 0%, transparent 50%), radial-gradient(circle at 80% 20%, #e63946 0%, transparent 50%)' }} />
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-10">
+              {/* Left */}
+              <div className="flex-1 space-y-5">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-400/30 rounded-full text-xs font-bold text-red-300 uppercase tracking-wider">
+                  🔥 Special Offer · Every Sunday
                 </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
+                  Sunday Health Camp<br />
+                  <span className="text-blue-200">Half Price Diagnostics!</span>
+                </h2>
+                <p className="text-slate-300 text-sm leading-relaxed max-w-lg">
+                  Every Sunday 7:00 AM – 2:00 PM. Get major diagnostic tests at half the regular price. Walk in or book online.
+                </p>
 
-      {/* Home Collection Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-          <div className="flex-1 space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading-left font-display">
-              Can't Visit the Lab?<br/>We Come to You!
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400">
-              Get professional home collection services across Kalyan. Our phlebotomist maintains complete sanitation and handles collections safely at your convenience.
-            </p>
-            <ul className="space-y-4">
-              {[
-                { title: 'Free Home Visit', desc: 'No extra collection fees for packages and booking orders above ₹500.' },
-                { title: 'Safe & Hygienic Collection', desc: 'Completely sterile, single-use vacuum tube needles used for every patient.' },
-                { title: 'Expert Phlebotomist Visit', desc: 'Handled directly by expert practitioners for minimal puncture irritation.' }
-              ].map((benefit, idx) => (
-                <li key={idx} className="flex gap-3">
-                  <FaCheckCircle className="text-[#00B894] mt-1 text-lg flex-shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-slate-700 dark:text-slate-200">{benefit.title}</h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{benefit.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="pt-4">
-              <Link to="/book-appointment" className="px-6 py-3 btn-primary text-sm inline-block">
-                Book Home Visit Now
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex-1 max-w-md lg:max-w-xl w-full">
-            <div className="aspect-video w-full bg-primary-100 dark:bg-slate-800 rounded-3xl p-8 flex items-center justify-center border border-slate-200 dark:border-slate-700 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-700/5 to-slate-100 dark:to-slate-800" />
-              <div className="z-10 text-center space-y-4">
-                <FaHome className="text-7xl text-primary-700 dark:text-blue-400 mx-auto" />
-                <p className="text-xl font-bold text-slate-800 dark:text-white font-display">Home Sample Collection</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Available in Kalyan West, Kalyan East, Khadakpada, Bail Bazar, Birla College Road, Kalyan Station Areas.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading font-display">
-              Google-Style Reviews
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Read feedback directly from patients who choose us for diagnostic testing.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            {[
-              { name: 'Priya Sharma', rating: 5, review: 'Excellent service! Mr. Shailesh is extremely gentle and professional. Got my reports on WhatsApp the very same evening.' },
-              { name: 'Rajesh Patil', rating: 5, review: 'We requested home collection for my aged parents. The service was punctual and very hygienic. Highly recommended!' },
-              { name: 'Sunita Desai', rating: 5, review: 'Mr. Shailesh Dubey has excellent hand stability. Hardly felt any pain during sample collection. Prices are also very reasonable.' }
-            ].map((t, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-card transition-all flex flex-col justify-between border border-slate-100 dark:border-slate-700">
-                <div className="space-y-4">
-                  <div className="flex gap-1">
-                    {[...Array(t.rating)].map((_, i) => (
-                      <FaStar key={i} className="text-yellow-400 text-sm" />
+                {/* Countdown */}
+                <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 inline-block">
+                  <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Next Camp Starts In:</p>
+                  <div className="flex items-center gap-2">
+                    {[{ v: timeLeft.d, l: 'Days' }, { v: timeLeft.h, l: 'Hours' }, { v: timeLeft.m, l: 'Mins' }, { v: timeLeft.s, l: 'Secs' }].map((t, i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <span className="text-2xl font-mono font-extrabold text-emerald-400 w-10 text-center">{t.v}</span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">{t.l}</span>
+                        {i < 3 && <span className="text-slate-400 text-lg font-bold absolute -mr-2">:</span>}
+                      </div>
                     ))}
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 italic text-sm">"{t.review}"</p>
                 </div>
-                <div className="flex items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-700 mt-6">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-blue-400 font-bold flex items-center justify-center text-sm">
+
+                <Link to="/book-appointment"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 rounded-xl font-bold text-sm transition-all shadow-lg">
+                  <FaCalendarCheck /> Book Sunday Camp
+                </Link>
+              </div>
+
+              {/* Right — offer cards */}
+              <div className="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+                {campOffers.slice(0, 6).map((offer, i) => (
+                  <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 text-center hover:bg-white/15 transition-all">
+                    <p className="text-xs font-semibold text-slate-200 leading-tight">{offer.test_name}</p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <span className="text-[11px] line-through text-slate-400">₹{offer.original}</span>
+                      <span className="text-lg font-extrabold text-emerald-400">₹{offer.camp}</span>
+                    </div>
+                    <span className="text-[9px] bg-emerald-400/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full mt-1 inline-block">
+                      Save {Math.round(((offer.original - offer.camp) / offer.original) * 100)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── HOME COLLECTION ── */}
+      <section className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+            <motion.div {...fadeUp} className="flex-1 space-y-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary-600 dark:text-blue-400">Home Collection</p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white leading-tight">
+                Can't Visit the Lab?<br /> We Come to You!
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                Our trained phlebotomist visits your home across Kalyan. Complete sanitation, sterile equipment, and professional care at your doorstep.
+              </p>
+              <ul className="space-y-3">
+                {[
+                  { title: 'Free Home Visit', desc: 'No extra collection charges on bookings above ₹500.' },
+                  { title: 'Safe & Hygienic', desc: 'Single-use sterile vacuum tube needles for every patient.' },
+                  { title: 'Expert Phlebotomist', desc: 'Minimal puncture irritation from our 8+ year expert.' },
+                ].map((b, i) => (
+                  <li key={i} className="flex gap-3 items-start">
+                    <FaCheckCircle className="text-emerald-500 mt-0.5 flex-shrink-0 text-lg" />
+                    <div>
+                      <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{b.title}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{b.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/home-collection"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-700 hover:bg-primary-800 text-white rounded-xl font-bold text-sm transition-all">
+                Book Home Collection <FaArrowRight className="text-xs" />
+              </Link>
+            </motion.div>
+
+            <motion.div {...fadeUp} className="flex-1 w-full max-w-md">
+              <div className="bg-gradient-to-br from-primary-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-8 text-center border border-blue-100 dark:border-slate-600 shadow-sm">
+                <FaHome className="text-6xl text-primary-600 dark:text-blue-400 mx-auto mb-4" />
+                <p className="text-lg font-extrabold text-slate-800 dark:text-white">Doorstep Sample Collection</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
+                  Serving Kalyan West, Kalyan East, Khadakpada, Bail Bazar, Birla College Road & nearby areas.
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
+                  {['Kalyan West', 'Kalyan East', 'Ambivali', 'Titwala', 'Shahad', 'Vithalwadi'].map(a => (
+                    <span key={a} className="px-2 py-1.5 bg-white dark:bg-slate-900/50 rounded-lg text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1">
+                      <FaMapMarkerAlt className="text-primary-500 text-[9px]" /> {a}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-16 lg:py-20 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div {...fadeUp} className="text-center mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary-600 dark:text-blue-400 mb-2">Patients Speak</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white">What Our Patients Say</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.1 }}
+                className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all">
+                <div className="flex gap-0.5 mb-3">
+                  {[...Array(t.rating)].map((_, j) => <FaStar key={j} className="text-amber-400 text-sm" />)}
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 text-sm italic leading-relaxed">"{t.review}"</p>
+                <div className="flex items-center gap-3 pt-4 mt-4 border-t border-slate-100 dark:border-slate-700">
+                  <div className="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-blue-400 font-bold flex items-center justify-center text-sm flex-shrink-0">
                     {t.name[0]}
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t.name}</h4>
-                    <p className="text-xs text-slate-400">Verified Patient</p>
+                    <p className="font-bold text-slate-800 dark:text-white text-sm">{t.name}</p>
+                    <p className="text-[10px] text-slate-400">Verified Patient · Kalyan</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Health Blog Preview */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white section-heading font-display">
-              Health Blog & Articles
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Read up-to-date recommendations written by clinical practitioners.
-            </p>
+      {/* ── CTA BANNER ── */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 hero-gradient text-white">
+        <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center space-y-5">
+          <h2 className="text-2xl sm:text-3xl font-extrabold">Ready to Book Your Diagnostic Test?</h2>
+          <p className="text-slate-300 text-sm">Fast, affordable, and accurate. Get your reports same day.</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link to="/book-appointment"
+              className="px-6 py-3 bg-white text-primary-800 font-bold rounded-xl text-sm hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2">
+              <FaCalendarCheck /> Book Now
+            </Link>
+            <a href="https://wa.me/918169686040" target="_blank" rel="noreferrer"
+              className="px-6 py-3 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold rounded-xl text-sm flex items-center gap-2 transition-all">
+              <FaWhatsapp /> Chat on WhatsApp
+            </a>
+            <a href="tel:8169686040"
+              className="px-6 py-3 bg-white/10 border border-white/20 hover:bg-white/20 text-white font-semibold rounded-xl text-sm flex items-center gap-2 transition-all">
+              <FaPhoneAlt className="text-xs" /> 81 6968 6040
+            </a>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: 'Diabetes Awareness: Fasting vs Post-Prandial Sugar Tests', category: 'Diabetes', desc: 'Learn why measuring both fasting and post-meal sugar levels offers accurate insight into management.' },
-              { title: 'Cholesterol Guide: Maintaining Healthy Lipid Profile Values', category: 'Heart Health', desc: 'Understanding LDL, HDL, and triglyceride levels and how simple diet shifts improve heart markers.' },
-              { title: 'Vitamin D Deficiency: The Importance of Calcium Absorption', category: 'Nutrition', desc: 'Why low Vitamin D levels could lead to chronic body ache and why active testing is necessary.' }
-            ].map((blog, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl overflow-hidden shadow-sm hover:shadow-card transition-all flex flex-col justify-between">
-                <div className="p-6 space-y-4">
-                  <span className="badge badge-blue text-[10px]">{blog.category}</span>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white font-display leading-snug">
-                    {blog.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {blog.desc}
-                  </p>
-                </div>
-                <div className="px-6 pb-6 pt-4 border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Read time: 4 mins</span>
-                  <Link to="/faq" className="text-xs text-primary-700 dark:text-blue-400 font-bold hover:underline">
-                    Read Article →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </section>
+
     </div>
   )
 }
